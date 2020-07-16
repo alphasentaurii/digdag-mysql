@@ -107,3 +107,24 @@ Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
  *For more in-depth doc go here:*
 https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOracleJdkDeb.html
 
+
+# DIGDAG
+
+Check to make sure `digdag` is installed correctly and runs:
+
+```bash
+$ digdag --help
+```
+
+## Write a digdag workflow
+
+Write a digdag workflow that executes an embulk script that ingests the attached files to the database you set up in the steps above:
+
+- Files that have a prefix of “customers” should ingest to a table called “customers_tmp”
+- Files that have a prefix of “pageviews” should ingest to a table called “pageviews_tmp”
+
+*Note: Ensure that all records from all files are ingested to the appropriate tables. Any timestamps should be ingested to the database as `string/varchar`*
+
+
+
+
