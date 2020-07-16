@@ -83,6 +83,27 @@ MariaDB [(none)]> SHOW DATABASES;
 MariaDB [(none)]> exit
 ```
 
+# Installing JAVA
 
+If you get an runtime error saying Java is not installed follow the steps below.
 
+*Note: These steps are for installing Java 11 from Oracle on an AWS remote server running Debian 9*
+
+1. Download the tar file from Oracle: 
+2. Copy (`scp`) the tar file to the remote server
+3. Unzip tar file into your JVM directory (you may need to create first)
+4. 
+```bash
+$ sudo mkdir /usr/lib/jvm
+$ sudo tar zxvf jdk-11.0.7_linux-x64_bin.tar.gz -C /usr/lib/jvm
+$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-11.0.7/bin/java" 1
+update-alternatives: using /usr/lib/jvm/jdk-11.0.7/bin/java to provide /usr/bin/java (java) in auto mode
+$ sudo update-alternatives --set java /usr/lib/jvm/jdk-11.0.7/bin/java
+$ java -version
+java version "11.0.7" 2020-04-14 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
+```
+ *For more in-depth doc go here:*
+https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOracleJdkDeb.html
 
