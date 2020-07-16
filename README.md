@@ -33,18 +33,54 @@ Remove test database and access to it? [Y/n] y
 Reload privilege tables now? [Y/n] y
 ```
 
-# Create MySQL Database
+# Create Database
 ```bash
-sudo mysql
-mysql> CREATE DATABASE td_coding_challenge DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-mysql> GRANT ALL ON td_coding_challenge.* TO 'digdag'@'localhost' IDENTIFIED BY 'digdag';
-mysql> FLUSH PRIVILEGES;
-mysql> exit
+$ sudo mariadb
 
-mysql -u digdag -p
-mysql> SHOW DATABASES;
-mysql> exit
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 53
+Server version: 10.3.22-MariaDB-0+deb10u1 Debian 10
 
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB> CREATE DATABASE td_coding_challenge DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+Query OK, 1 row affected (0.003 sec)
+
+MariaDB> GRANT ALL ON td_coding_challenge.* TO 'digdag'@'localhost' IDENTIFIED BY 'digdag' WITH GRANT OPTION;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB> FLUSH PRIVILEGES;
+Query OK, 0 rows affected (0.000 sec)
+
+MariaDB> exit
+
+$ 
+```
+
+# Test non-root user login
+```bash
+$ mariadb -u digdag -p
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 54
+Server version: 10.3.22-MariaDB-0+deb10u1 Debian 10
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> SHOW DATABASES;
++---------------------+
+| Database            |
++---------------------+
+| information_schema  |
+| td_coding_challenge |
++---------------------+
+2 rows in set (0.000 sec)
+
+MariaDB [(none)]> exit
 ```
 
 
