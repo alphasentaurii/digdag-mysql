@@ -27,33 +27,45 @@ product.
 - digdag
 - embulk
 - mysql/mariadb
-- java (must be pre-java11: embulk doesn't support Java 11 yet)
+- java 10 or earlier (embulk doesn't support Java 11 yet)
 
 ### Installing Java RE
 
-If you get an runtime error saying Java is not installed follow the steps below.
+Check which version of Java you're running. If you get an runtime error saying Java is not installed (when you go to run digdag or embulk) follow the steps below.
 
-*Note: These steps are for installing Java 11 from Oracle on an AWS remote server running Debian 9*
+```bash
+$ java -version
+```
 
-1. Download the tar file from Oracle: 
+*Note: these are the steps for installing Java 10 from Oracle on an AWS remote server running Debian 9. If you're using a different environment you will need to adjust accordingly.
+
+1. Download the tar file from Oracle
 2. Copy (`scp`) the tar file to the remote server
 3. Unzip tar file into your JVM directory (you may need to create first)
-4. Update alternatives
-5. Check version
+4. Install Java
+5. Set Java directory
+6. Check version
 
 ```bash
 $ sudo mkdir /usr/lib/jvm
-$ sudo tar zxvf jdk-11.0.7_linux-x64_bin.tar.gz -C /usr/lib/jvm
-$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-11.0.7/bin/java" 1
+# $ sudo tar zxvf jdk-11.0.7_linux-x64_bin.tar.gz -C /usr/lib/jvm
+# $ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-11.0.7/bin/java" 1
+# update-alternatives: using /usr/lib/jvm/jdk-11.0.7/bin/java to provide /usr/bin/java (java) in auto mode
+# $ sudo update-alternatives --set java /usr/lib/jvm/jdk-11.0.7/bin/java
+#java version "11.0.7" 2020-04-14 LTS
+#Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
+#Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
 
-update-alternatives: using /usr/lib/jvm/jdk-11.0.7/bin/java to provide /usr/bin/java (java) in auto mode
+$ sudo tar zxvf jdk-10.0.2_linux-x64_bin.tar.gz -C /usr/lib/jvm
 
-$ sudo update-alternatives --set java /usr/lib/jvm/jdk-11.0.7/bin/java
+$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-10.0.2/bin/java" 1
+
+$ sudo update-alternatives --set java /usr/lib/jvm/jdk-10.0.2/bin/java
+
 $ java -version
-
-java version "11.0.7" 2020-04-14 LTS
-Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
-Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
+java version "10.0.2" 2018-07-17
+Java(TM) SE Runtime Environment 18.3 (build 10.0.2+13)
+Java HotSpot(TM) 64-Bit Server VM 18.3 (build 10.0.2+13, mixed mode)
 ```
 
  *For more in-depth doc on JAVA go here:*
