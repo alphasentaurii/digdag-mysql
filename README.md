@@ -8,7 +8,7 @@ Embulk and Digdag are open source libraries for data ingestion and data pipeline
 respectively. These libraries were invented at Treasure Data and are foundational to the Treasure Data
 product.
 
-# Directory structure
+## Directory structure
 .
 ├── README.md
 └── customers.yml
@@ -21,23 +21,60 @@ product.
         └── pageviews_1.csv
         └── pageviews_2.csv
 
-# Pre-requisites
+## Pre-requisites
 
 - `sudo` privileges
 - digdag
 - embulk
 - mysql/mariadb
-- java
+- java (must be pre-java11: embulk doesn't support Java 11 yet)
 
+### Installing Java RE
 
-# Install `digdag`
+If you get an runtime error saying Java is not installed follow the steps below.
+
+*Note: These steps are for installing Java 11 from Oracle on an AWS remote server running Debian 9*
+
+1. Download the tar file from Oracle: 
+2. Copy (`scp`) the tar file to the remote server
+3. Unzip tar file into your JVM directory (you may need to create first)
+4. Update alternatives
+5. Check version
+
+```bash
+$ sudo mkdir /usr/lib/jvm
+$ sudo tar zxvf jdk-11.0.7_linux-x64_bin.tar.gz -C /usr/lib/jvm
+$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-11.0.7/bin/java" 1
+
+update-alternatives: using /usr/lib/jvm/jdk-11.0.7/bin/java to provide /usr/bin/java (java) in auto mode
+
+$ sudo update-alternatives --set java /usr/lib/jvm/jdk-11.0.7/bin/java
+$ java -version
+
+java version "11.0.7" 2020-04-14 LTS
+Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
+Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
+```
+
+ *For more in-depth doc on JAVA go here:*
+https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOracleJdkDeb.html
+
+### Install `digdag`
+
 ```bash
 $ curl -o ~/bin/digdag --create-dirs -L "https://dl.digdag.io/digdag-latest"
 $ chmod +x ~/bin/digdag
 $ echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
 ```
 
-# Install Embulk
+#### Check installation was successful
+
+Check to make sure `digdag` is installed correctly:
+
+```bash
+$ digdag --help
+```
+### Install Embulk
 
 ```bash
 curl --create-dirs -o ~/.embulk/bin/embulk -L "https://dl.embulk.org/embulk-latest.jar"
@@ -46,7 +83,7 @@ echo 'export PATH="$HOME/.embulk/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-# Install MariaDB/MySQL
+### Install MariaDB/MySQL
 
 ```bash
 $ sudo apt install mariadb-server -y
@@ -60,7 +97,8 @@ Remove test database and access to it? [Y/n] y
 Reload privilege tables now? [Y/n] y
 ```
 
-# Create Database
+#### Create Database
+
 ```bash
 $ sudo mariadb
 
@@ -84,7 +122,8 @@ Query OK, 0 rows affected (0.000 sec)
 MariaDB> exit
 ```
 
-# Test non-root user login
+#### Test non-root user login
+
 ```bash
 $ mariadb -u digdag -p
 Enter password: 
@@ -108,43 +147,13 @@ MariaDB [(none)]> SHOW DATABASES;
 MariaDB [(none)]> exit
 ```
 
-# Installing Java RE
-
-If you get an runtime error saying Java is not installed follow the steps below.
-
-*Note: These steps are for installing Java 11 from Oracle on an AWS remote server running Debian 9*
-
-1. Download the tar file from Oracle: 
-2. Copy (`scp`) the tar file to the remote server
-3. Unzip tar file into your JVM directory (you may need to create first)
-4. Update alternatives
-5. Check version
+## Install MySQL OutputPlugin
 
 ```bash
-$ sudo mkdir /usr/lib/jvm
-$ sudo tar zxvf jdk-11.0.7_linux-x64_bin.tar.gz -C /usr/lib/jvm
-$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-11.0.7/bin/java" 1
-update-alternatives: using /usr/lib/jvm/jdk-11.0.7/bin/java to provide /usr/bin/java (java) in auto mode
-$ sudo update-alternatives --set java /usr/lib/jvm/jdk-11.0.7/bin/java
-$ java -version
-java version "11.0.7" 2020-04-14 LTS
-Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
-Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
+$ embulk gem install embulk-output-mysql
 ```
 
- *For more in-depth doc on JAVA go here:*
-https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOracleJdkDeb.html
-
-
-# Check installation was successful
-
-Check to make sure `digdag` is installed correctly:
-
-```bash
-$ digdag --help
-```
-
-# EMBULK Scripts
+## Create EMBULK Scripts
 
 *Requirements*
 
@@ -153,18 +162,9 @@ $ digdag --help
 - Ensure that all records from all files are ingested to the appropriate tables. 
 - Any timestamps should be ingested to the database as `string/varchar`*
 
-
-## Install MySQL OutputPlugin
-
-```bash
-$ embulk gem install embulk-output-mysql
-```
-
-## Customers Embulk Script
+### Customers Embulk Script
 
 ```bash
-$ sudo mkdir tasks
-$ cd tasks
 $ sudo nano config1.yml
 ```
 
@@ -341,7 +341,7 @@ timezone: UTC
 ```
 
 
-# Run Digdag workflow
+## Run Digdag workflow
 
 ```bash
 $ digdag run workflow.dig
