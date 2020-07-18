@@ -207,7 +207,6 @@ in:
     - {name: first_name, type: string}
     - {name: last_name, type: string}
     - {name: job_title, type: string}
-    ...
 out:
   type: mysql
   host: localhost
@@ -245,15 +244,13 @@ $ sudo nano config2.yml
 in:
   type: file
   path_prefix: ./data/pageviews/
-  decoders:
-  - {type: gzip}
   parser:
     charset: UTF-8
     newline: CRLF
     type: csv
     delimiter: ','
     quote:: '"'
-    escape: ''
+    escape: null
     null_string: 'NULL'
     skip_header_lines: 1
     columns:
@@ -267,7 +264,7 @@ filters:
     default_to_timezone: "UTC"
     default_to_timestamp_format: "%Y-%m-%d %H:%M:%S.%N"
     columns:
-        - {name: timestamp, type: long, to_unit: ms}
+        - {name: time, type: long, to_unit: ms}
         - {name: $.nested.timestamp}
 out:
   type: mysql
