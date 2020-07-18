@@ -27,7 +27,7 @@ product.
 - digdag
 - embulk
 - mysql/mariadb
-- java 10 or earlier (embulk doesn't support Java 11 yet)
+- java 9 (embulk doesn't support Java 10,11,12 yet)
 
 ### Installing Java RE
 
@@ -37,9 +37,10 @@ Check which version of Java you're running. If you get an runtime error saying J
 $ java -version
 ```
 
-*Note: these are the steps for installing Java 10 from Oracle on an AWS remote server running Debian 9. If you're using a different environment you will need to adjust accordingly.
+*Note: these are the steps for installing Java 9 from Oracle on an AWS remote server running Debian 9. If you're using a different environment you will need to adjust accordingly.
 
-1. Download the tar file from Oracle
+1. Download the tar file from ![Oracle](https://www.oracle.com/java/technologies/javase/javase9-archive-downloads.html): jdk-9.0.4_linux-x64_bin.tar.gz
+
 2. Copy (`scp`) the tar file to the remote server
 3. Unzip tar file into your JVM directory (you may need to create first)
 4. Install Java
@@ -56,16 +57,16 @@ $ sudo mkdir /usr/lib/jvm
 #Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
 #Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
 
-$ sudo tar zxvf jdk-10.0.2_linux-x64_bin.tar.gz -C /usr/lib/jvm
+$ sudo tar zxvf jdk-9.0.4_linux-x64_bin.tar.gz -C /usr/lib/jvm
 
-$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-10.0.2/bin/java" 1
+$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-9.0.4/bin/java" 1
 
-$ sudo update-alternatives --set java /usr/lib/jvm/jdk-10.0.2/bin/java
+$ sudo update-alternatives --set java /usr/lib/jvm/jdk-9.0.4/bin/java
 
 $ java -version
-java version "10.0.2" 2018-07-17
-Java(TM) SE Runtime Environment 18.3 (build 10.0.2+13)
-Java HotSpot(TM) 64-Bit Server VM 18.3 (build 10.0.2+13, mixed mode)
+java version "9.0.4"
+Java(TM) SE Runtime Environment (build 9.0.4+11)
+Java HotSpot(TM) 64-Bit Server VM (build 9.0.4+11, mixed mode)
 ```
 
  *For more in-depth doc on JAVA go here:*
@@ -163,6 +164,12 @@ MariaDB [(none)]> exit
 
 ```bash
 $ embulk gem install embulk-output-mysql
+
+Gem plugin path is: /home/jester/.embulk/lib/gems
+
+Fetching: embulk-output-mysql-0.8.7.gem (100%)
+Successfully installed embulk-output-mysql-0.8.7
+1 gem installed
 ```
 
 ## Create EMBULK Scripts
