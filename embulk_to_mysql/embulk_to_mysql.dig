@@ -1,0 +1,15 @@
+# embulk_to_mysql.dig
+
++setup:
+  echo>: start ${session_time}
+
++disp_current_date:
+  echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
+
++step1: 
+  sh>: embulk run customers.yml
++step2:
+  sh>: embulk run pageviews.yml
+
+
+
