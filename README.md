@@ -164,12 +164,6 @@ MariaDB [(none)]> exit
 
 ```bash
 $ embulk gem install embulk-output-mysql
-
-Gem plugin path is: /home/jester/.embulk/lib/gems
-
-Fetching: embulk-output-mysql-0.8.7.gem (100%)
-Successfully installed embulk-output-mysql-0.8.7
-1 gem installed
 ```
 
 ## Create EMBULK Scripts
@@ -179,7 +173,7 @@ Successfully installed embulk-output-mysql-0.8.7
 - Files that have a prefix of “customers” should ingest to a table called “customers_tmp”
 - Files that have a prefix of “pageviews” should ingest to a table called “pageviews_tmp”
 - Ensure that all records from all files are ingested to the appropriate tables. 
-- Any timestamps should be ingested to the database as `string/varchar`*
+- Any timestamps should be ingested to the database as `string/varchar`
 
 ### Customers Embulk Script
 
@@ -188,22 +182,21 @@ $ sudo nano config1.yml
 ```
 
 ```bash
+# customers.yml
 in:
   type: file
   path_prefix: ./data/customers/
-  decoders:
-  - {type: gzip}
   parser:
     charset: UTF-8
     newline: CRLF
     type: csv
     delimiter: ','
     quote:: '"'
-    escape: ''
+    escape: null
     null_string: 'NULL'
     skip_header_lines: 1
     columns:
-    - {name: user_id, type: long}
+    - {name: user_id, type: string}
     - {name: first_name, type: string}
     - {name: last_name, type: string}
     - {name: job_title, type: string}
@@ -241,6 +234,7 @@ $ sudo nano config2.yml
 ```
 
 ```bash
+# pageviews.yml
 in:
   type: file
   path_prefix: ./data/pageviews/
@@ -254,18 +248,10 @@ in:
     null_string: 'NULL'
     skip_header_lines: 1
     columns:
-    - {name: user_id, type: long}
+    - {name: user_id, type: string}
     - {name: url, type: string}
-    - {name: user_agent, type: long}
-    - {name: time, type: timestamp, format: '%Y-%m-%d %H:%M:%S'}
-filters:
-    - type: timestamp_format
-    default_from_timestamp_format: ["%Y-%m-%d %H:%M:%S.%N %z", "%Y-%m-%d %H:%M:%S %z"]
-    default_to_timezone: "UTC"
-    default_to_timestamp_format: "%Y-%m-%d %H:%M:%S.%N"
-    columns:
-        - {name: time, type: long, to_unit: ms}
-        - {name: $.nested.timestamp}
+    - {name: user_agent, type: string}
+    - {name: timestamp, type: string, format: varchar}
 out:
   type: mysql
   host: localhost
@@ -295,47 +281,52 @@ $ embulk run pageviews.yml
 
 ---
 
+## Check database
+
+```bash
+
+$ mariadb -u digdag -p
+
+mariadb> use test;
+mariadb> show tables;
+
+MariaDB [test]> show tables;
++----------------+
+| Tables_in_test |
++----------------+
+| customers_tmp  |
+| pageviews_tmp  |
++----------------+
+2 rows in set (0.000 sec)
+
+MariaDB [test]> select url from pageviews_tmp where user_id = "70b020fb-6cc7-4151-b918-23b14ed492c0" order by timestamp;
++------------------------------------------------------------------------------+
+| url                                                                          |
++------------------------------------------------------------------------------+
+| http://tiny.cc/purus/eu/magna/vulputate/luctus/cum.jpg                       |
+| http://squarespace.com/lorem/vitae/mattis.jpg                                |
+| http://flickr.com/sapien/a/libero/nam/dui.js                                 |
+| http://skype.com/urna.png                                                    |
+| http://mediafire.com/lacinia/aenean/sit/amet.html                            |
+| http://abc.net.au/in/felis.js                                                |
+| https://imageshack.us/mi/nulla/ac/enim/in/tempor/turpis.json                 |
+| https://printfriendly.com/aliquam/non/mauris.jsp                             |
+| https://forbes.com/in.jpg                                                    |
+| http://123-reg.co.uk/nulla/facilisi.jpg                                      |
+| https://businessinsider.com/vulputate/nonummy/maecenas/tincidunt/lacus/at.js |
++------------------------------------------------------------------------------+
+11 rows in set (0.001 sec)
+```
+---
+
 ## Write a digdag workflow
 
 ```bash
-$ digdag init embulk_to_mysql.dig
-$ cd mydag
-$ sudo nano mysql_dag.dig
+$ digdag init csv_to_mysql.dig
+$ cd csv_to_mysql.dig
+$ sudo nano csv_to_mysql.dig
 ```
 
-```bash
-# mydag.dig
-timezone: UTC
-
-+setup:
-  echo>: start ${session_time}
-
-+disp_current_date:
-  echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
-
-+repeat:
-  for_each>:
-    #order: [first, second, third]
-    #animal: [dog, cat]
-  _do:
-    #echo>: ${order} ${animal}
-  _parallel: true
-
-+teardown:
-  echo>: finish ${session_time}
-```
-
-```bash
-# my_workflow.dig
-+load:
-  +from_mysql:
-    +tables:
-      ...
-  +from_postgres:
-    ...
-+dump:
-  ...
-```
 
 ```bash
 # embulk_to_mysql.dig
@@ -348,9 +339,9 @@ timezone: UTC
   echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
 
 +load:
-  sh>: embulk run customers.yml
+  sh>: embulk run ../customers.yml
 +load:
-  sh>: embulk run pageviews.yml
+  sh>: embulk run ../pageviews.yml
 
 +teardown:
   echo>: finish ${session_time}
