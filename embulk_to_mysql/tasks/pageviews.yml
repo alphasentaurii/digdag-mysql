@@ -1,6 +1,6 @@
 in:
   type: file
-  path_prefix: ./data/pageviews/
+  path_prefix: ${pageviews_data}
   parser:
     charset: UTF-8
     newline: CRLF

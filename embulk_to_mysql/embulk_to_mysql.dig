@@ -6,17 +6,16 @@
 +disp_current_date:
   echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
 
-+load:
-  +step1: 
-    sh>: embulk run customers.yml
-  +step2:
-    echo>: first step complete
-  +step3:
-    sh>: embulk run pageviews.yml
-  +step4:
-    echo>: second step complete
-  +step5:
-    echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
+_export:
+  customer_data: "./data/customers/"
 
++step1: 
+  embulk>: ./tasks/customers.yml
+  _check:
+    +succeed:
+      echo>: success
+  _error:
+    +failed:
+      echo>: fail
 
 
