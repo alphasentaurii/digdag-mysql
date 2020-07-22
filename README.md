@@ -11,9 +11,13 @@ product.
 ## Directory structure
 .
 ├── README.md
-└── customers.yml
-└── pageviews.yml
-└── data
+└── embulk_to_mysql
+  └── embulk_to_mysql.dig
+  └── seed_customers.yml
+  └── seed_pageviews.yml
+  └── config_customers.yml
+  └── config_pageviews.yml
+  └── data
     └── customers
         └── customers_1.csv
         └── customers_2.csv
@@ -49,28 +53,27 @@ $ java -version
 
 ```bash
 $ sudo mkdir /usr/lib/jvm
-# $ sudo tar zxvf jdk-11.0.7_linux-x64_bin.tar.gz -C /usr/lib/jvm
-# $ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-11.0.7/bin/java" 1
-# update-alternatives: using /usr/lib/jvm/jdk-11.0.7/bin/java to provide /usr/bin/java (java) in auto mode
-# $ sudo update-alternatives --set java /usr/lib/jvm/jdk-11.0.7/bin/java
-#java version "11.0.7" 2020-04-14 LTS
-#Java(TM) SE Runtime Environment 18.9 (build 11.0.7+8-LTS)
-#Java HotSpot(TM) 64-Bit Server VM 18.9 (build 11.0.7+8-LTS, mixed mode)
 
-$ sudo tar zxvf jdk-9.0.4_linux-x64_bin.tar.gz -C /usr/lib/jvm
+$ sudo tar zxvf jre-8u261-linux-x64.tar.gz -C /usr/lib/jvm
 
-$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jdk-9.0.4/bin/java" 1
+$ sudo update-alternatives --install "/usr/bin/java" "java" "/usr/lib/jvm/jre1.8.0_261/bin/java" 1
 
-$ sudo update-alternatives --set java /usr/lib/jvm/jdk-9.0.4/bin/java
+$ sudo update-alternatives --set java /usr/lib/jvm/jre1.8.0_261/bin/java
 
 $ java -version
-java version "9.0.4"
-Java(TM) SE Runtime Environment (build 9.0.4+11)
-Java HotSpot(TM) 64-Bit Server VM (build 9.0.4+11, mixed mode)
+java version "1.8.0_261"
+Java(TM) SE Runtime Environment (build 1.8.0_261-b12)
+Java HotSpot(TM) 64-Bit Server VM (build 25.261-b12, mixed mode)
 ```
 
  *For more in-depth doc on JAVA go here:*
 https://docs.datastax.com/en/jdk-install/doc/jdk-install/installOracleJdkDeb.html
+
+### Switch to root
+
+```bash
+$ sudo -s
+```
 
 ### Install `digdag`
 
@@ -178,11 +181,11 @@ $ embulk gem install embulk-output-mysql
 ### Customers Embulk Script
 
 ```bash
-$ sudo nano config1.yml
+$ sudo nano seed_customers.yml
 ```
 
 ```bash
-# customers.yml
+# seed_customers.yml
 in:
   type: file
   path_prefix: ./data/customers/
@@ -210,31 +213,14 @@ out:
   mode: insert
 ```
 
-### Embulk Guess
-
-```bash
-$ embulk guess config1.yml -o customers.yml
-```
-### Preview from input source
-
-```bash
-$ embulk preview customers.yml
-```
-
-### Run script
-
-```bash
-$ embulk run customers.yml
-```
-
 ## Pageviews Embulk Script
 
 ```bash
-$ sudo nano config2.yml
+$ sudo nano seed_pageviews.yml
 ```
 
 ```bash
-# pageviews.yml
+# seed_pageviews.yml
 in:
   type: file
   path_prefix: ./data/pageviews/
@@ -262,69 +248,14 @@ out:
   mode: insert
 ```
 
-### Embulk Guess
-
-```bash
-$ embulk guess config2.yml -o pageviews.yml
-```
-### Preview from input source
-
-```bash
-$ embulk preview pageviews.yml
-```
-
-### Run script
-
-```bash
-$ embulk run pageviews.yml
-```
-
----
-
-## Check database
-
-```bash
-
-$ mariadb -u digdag -p
-
-mariadb> use test;
-mariadb> show tables;
-
-MariaDB [test]> show tables;
-+----------------+
-| Tables_in_test |
-+----------------+
-| customers_tmp  |
-| pageviews_tmp  |
-+----------------+
-2 rows in set (0.000 sec)
-
-MariaDB [test]> select url from pageviews_tmp where user_id = "70b020fb-6cc7-4151-b918-23b14ed492c0" order by timestamp;
-+------------------------------------------------------------------------------+
-| url                                                                          |
-+------------------------------------------------------------------------------+
-| http://tiny.cc/purus/eu/magna/vulputate/luctus/cum.jpg                       |
-| http://squarespace.com/lorem/vitae/mattis.jpg                                |
-| http://flickr.com/sapien/a/libero/nam/dui.js                                 |
-| http://skype.com/urna.png                                                    |
-| http://mediafire.com/lacinia/aenean/sit/amet.html                            |
-| http://abc.net.au/in/felis.js                                                |
-| https://imageshack.us/mi/nulla/ac/enim/in/tempor/turpis.json                 |
-| https://printfriendly.com/aliquam/non/mauris.jsp                             |
-| https://forbes.com/in.jpg                                                    |
-| http://123-reg.co.uk/nulla/facilisi.jpg                                      |
-| https://businessinsider.com/vulputate/nonummy/maecenas/tincidunt/lacus/at.js |
-+------------------------------------------------------------------------------+
-11 rows in set (0.001 sec)
-```
 ---
 
 ## Write a digdag workflow
 
 ```bash
-$ digdag init csv_to_mysql.dig
-$ cd csv_to_mysql.dig
-$ sudo nano csv_to_mysql.dig
+$ digdag init embulk_to_mysql.dig
+$ cd embulk_to_mysql.dig
+$ sudo nano embulk_to_mysql.dig
 ```
 
 
@@ -332,24 +263,54 @@ $ sudo nano csv_to_mysql.dig
 # embulk_to_mysql.dig
 timezone: UTC
 
-+setup:
-  echo>: start ${session_time}
+_export:
+  workflow_name: "embulk_to_mysql"
+  start_msg:     "digdag ${workflow_name} start"
+  end_msg:       "digdag ${workflow_name} finish"
+  error_msg:     "digdag ${workflow_name} error"
+  mysql:
+    host: localhost
+    port: 3306
+    user: digdag
+    password: digdag
+    database: test2
+    strict_transaction: false
 
-+disp_current_date:
-  echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
++start:
+  echo>: ${start_msg}
 
-+load:
-  sh>: embulk run ../customers.yml
-+load:
-  sh>: embulk run ../pageviews.yml
++guesstest:
+  _parallel: true
 
-+teardown:
-  echo>: finish ${session_time}
+# create embulk config files
+  +guess_embulkCust:
+    sh>: embulk guess seed_customers.yml -o config_customers.yml
+
+  +guess_embulkPage:
+    sh>: embulk guess seed_pageviews.yml -o config_pageviews.yml
+
+# Load database
+
++loadtest:
+  _parallel: true
+  
+  +csv_to_db_Cust:
+    sh>: embulk run config_customers.yml
+
+  +csv_to_db_Page:
+    sh>: embulk run config_pageviews.yml
+
++end:
+  echo>: ${end_msg}
+
+_error:
+  echo>: ${error_msg} 
 ```
 
 
 ## Run Digdag workflow
 
 ```bash
-$ digdag run workflow.dig
+# If this isn't your first time running the workflow, use the --rerun flag 
+$ digdag run embulk_to_mysql.dig --rerun -O log/task
 ```
