@@ -1,21 +1,47 @@
 # embulk_to_mysql.dig
-
-+setup:
-  echo>: start ${session_time}
-
-+disp_current_date:
-  echo>: ${moment(session_time).utc().format('YYYY-MM-DD HH:mm:ss Z')}
+timezone: UTC
 
 _export:
-  customer_data: "./data/customers/"
+  workflow_name: "embulk_to_mysql"
+  start_msg:     "digdag ${workflow_name} start"
+  end_msg:       "digdag ${workflow_name} finish"
+  error_msg:     "digdag ${workflow_name} error"
+  mysql:
+    host: localhost
+    port: 3306
+    user: digdag
+    password: digdag
+    database: test2
+    strict_transaction: false
 
-+step1: 
-  embulk>: ./tasks/customers.yml
-  _check:
-    +succeed:
-      echo>: success
-  _error:
-    +failed:
-      echo>: fail
++start:
+  echo>: ${start_msg}
+
++guesstest:
+  _parallel: true
+
+# create embulk config files
+  +guess_embulkCust:
+    sh>: embulk guess seed_customers.yml -o config_customers.yml
+
+  +guess_embulkPage:
+    sh>: embulk guess seed_pageviews.yml -o config_pageviews.yml
+
+# Load database
+
++loadtest:
+  _parallel: true
+  
+  +csv_to_db_Cust:
+    sh>: embulk run config_customers.yml
+
+  +csv_to_db_Page:
+    sh>: embulk run config_pageviews.yml
+
++end:
+  echo>: ${end_msg}
+
+_error:
+  echo>: ${error_msg}  
 
 

@@ -1,6 +1,6 @@
 in:
   type: file
-  path_prefix: ${pageviews_data}
+  path_prefix: ./data/customers/
   parser:
     charset: UTF-8
     newline: CRLF
@@ -12,12 +12,12 @@ in:
     skip_header_lines: 1
     columns:
     - {name: user_id, type: string}
-    - {name: url, type: string}
-    - {name: user_agent, type: string}
-    - {name: timestamp, type: string, format: varchar}
+    - {name: first_name, type: string}
+    - {name: last_name, type: string}
+    - {name: job_title, type: string}
     quote: '"'
     trim_if_not_quoted: false
     allow_extra_columns: false
     allow_optional_columns: false
 out: {type: mysql, host: localhost, user: digdag, password: digdag, database: test2,
-  table: pageviews_tmp, mode: insert}
+  table: customers_tmp, mode: insert}
