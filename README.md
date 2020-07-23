@@ -250,6 +250,27 @@ out:
 
 ---
 
+### SQL Queries
+
+Create a new table called `customers` that:
+- Includes all columns from customers_tmp
+- Parses the “user_agent” column to add a new column called ‘operating_system’ that contains one of the following values ("Windows", "Macintosh", "Linux", or "Other"). 
+
+**Note: This column represents the operating system of the customer's desktop/laptop/tablet/mobile.**
+
+```sql
+CREATE TABLE customers 
+SELECT c.user_id, c.first_name, c.last_name, c.job_title, p.user_agent 
+AS operating_system 
+FROM pageviews_tmp p 
+JOIN customers_tmp c 
+ON p.user_id = c.user_id 
+GROUP BY user_id;
+```
+
+
+
+
 ## Write a digdag workflow
 
 ```bash
