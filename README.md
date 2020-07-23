@@ -169,6 +169,8 @@ MariaDB [(none)]> exit
 $ embulk gem install embulk-output-mysql
 ```
 
+# Data Ingestion
+
 ## Create EMBULK Scripts
 
 *Requirements*
@@ -250,13 +252,13 @@ out:
 
 ---
 
-### SQL Queries
+### Data Ingestion - SQL Queries
 
-Create a new table called `customers` that:
+Creates a new table called `customers` that:
 - Includes all columns from customers_tmp
 - Parses the “user_agent” column to add a new column called ‘operating_system’ that contains one of the following values ("Windows", "Macintosh", "Linux", or "Other"). 
 
-**Note: This column represents the operating system of the customer's desktop/laptop/tablet/mobile.**
+`create_customers.sql`
 
 ```sql
 CREATE TABLE customers 
@@ -268,6 +270,7 @@ ON p.user_id = c.user_id
 GROUP BY user_id;
 ```
 
+`update_customers.sql`
 ```sql
 UPDATE customers SET operating_system = 'Macintosh' WHERE operating_system LIKE '%Mac%';
 
@@ -278,7 +281,44 @@ UPDATE customers SET operating_system = 'Windows' WHERE operating_system LIKE '%
 UPDATE customers SET operating_system = 'Other' WHERE operating_system LIKE '%bot%';
 ```
 
+Creates a new table called `pageviews` that:
+- Includes all columns from pageviews_tmp
+- Excludes all records where job_title contains “Sales”
 
+`create_pageviews.sql`
+```sql
+CREATE TABLE pageviews 
+SELECT * 
+FROM pageviews_tmp
+WHERE user_id IN (SELECT user_id
+		  FROM customers_tmp
+		  WHERE job_title NOT LIKE '%Sales%');
+```
+
+## Data Analysis - SQL Queries
+
+Returns the total number of pageviews from users who are browsing with a Windows operating system or have “Engineer” in their job title.
+
+```sql
+
+```
+
+Returns top 3 user_id’s (ranked by total pageviews) who have viewed a web page with a
+“.gov” domain extension
+
+```sql
+
+```
+
+Returns the last page viewed by each of these user_id’s in this format:
+user_id last_page_viewed
+1 http://skype.com/urna.png
+2 https://wordpress.org/integer/a/nibh/in/quis.html
+3 http://hhs.gov/quisque/porta/volutpat/erat/quisque/erat.aspx
+
+```sql
+
+```
 
 ## Write a digdag workflow
 
@@ -303,7 +343,7 @@ _export:
     port: 3306
     user: digdag
     password: digdag
-    database: test2
+    database: td_coding_challenge
     strict_transaction: false
 
 +start:
@@ -319,9 +359,10 @@ _export:
   +guess_embulkPage:
     sh>: embulk guess seed_pageviews.yml -o config_pageviews.yml
 
-# Load database
+# Data Ingestion
+# Load database tmp tables
 
-+loadtest:
++loadDB:
   _parallel: true
   
   +csv_to_db_Cust:
@@ -329,6 +370,21 @@ _export:
 
   +csv_to_db_Page:
     sh>: embulk run config_pageviews.yml
+
+# Create/update new tables
+
++updateDB:
+  +createCust:
+    mysql>: create_customers.sql
+  +updateCust:
+    mysql>: update_customers.sql
+  +createPage:
+    mysql> create_pageviews.sql
+
+# Data Analysis
+
+
+
 
 +end:
   echo>: ${end_msg}
