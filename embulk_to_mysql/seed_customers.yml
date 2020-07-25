@@ -19,5 +19,5 @@ in:
     trim_if_not_quoted: false
     allow_extra_columns: false
     allow_optional_columns: false
-out: {type: mysql, host: localhost, user: digdag, password: digdag, database: test2,
+out: {type: mysql, host: localhost, user: digdag, password: digdag, database: test3,
   table: customers_tmp, mode: insert}

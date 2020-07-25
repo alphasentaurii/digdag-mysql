@@ -11,7 +11,7 @@ _export:
     port: 3306
     user: digdag
     password: digdag
-    database: test2
+    database: test3
     strict_transaction: false
 
 +start:
@@ -42,6 +42,4 @@ _export:
   echo>: ${end_msg}
 
 _error:
-  echo>: ${error_msg}  
-
-
+  echo>: ${error_msg}
