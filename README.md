@@ -300,13 +300,41 @@ WHERE user_id IN (SELECT user_id
 Returns the total number of pageviews from users who are browsing with a Windows operating system or have “Engineer” in their job title.
 
 ```sql
-
+SELECT COUNT(url) 
+FROM pageviews 
+WHERE user_id 
+IN (SELECT user_id 
+    FROM customers 
+    WHERE operating_system = 'Windows' 
+    OR job_title LIKE '%Engineer%')
+```
+```bash
++------------+
+| COUNT(url) |
++------------+
+|        576 |
++------------+
+1 row in set (0.009 sec)
 ```
 
 Returns top 3 user_id’s (ranked by total pageviews) who have viewed a web page with a
 “.gov” domain extension
 
 ```sql
+SELECT user_id FROM pageviews WHERE user_id IN (SELECT user_id FROM pageviews WHERE url LIKE '%.gov%' ORDER BY timestamp DESC) GROUP BY user_id ORDER BY count(url) DESC LIMIT 3;
+
+SELECT user_id, url AS last_page_viewed FROM pageviews WHERE user_id IN (SELECT user_id FROM pageviews WHERE url LIKE '%.gov%' ORDER BY timestamp DESC) GROUP BY user_id ORDER BY count(url) DESC LIMIT 3;
+
+```
+```bash
++--------------------------------------+
+| user_id                              |
++--------------------------------------+
+| 5d9b8515-823e-49b8-ad44-5c91ef23462f |
+| 6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0 |
+| 752119fa-50dc-4011-8f13-23aa8d78eb18 |
++--------------------------------------+
+3 rows in set (0.785 sec)
 
 ```
 
@@ -317,8 +345,20 @@ user_id last_page_viewed
 3 http://hhs.gov/quisque/porta/volutpat/erat/quisque/erat.aspx
 
 ```sql
-
+SELECT user_id, url AS last_page_viewed FROM pageviews WHERE user_id IN (SELECT user_id FROM pageviews WHERE url LIKE '%.gov%' ORDER BY timestamp DESC) GROUP BY user_id HAVING max(timestamp) ORDER BY count(url) DESC LIMIT 3;
 ```
+
+```bash
++--------------------------------------+--------------------------------------------------------------+
+| user_id                              | last_page_viewed                                             |
++--------------------------------------+--------------------------------------------------------------+
+| 5d9b8515-823e-49b8-ad44-5c91ef23462f | https://microsoft.com/morbi/porttitor.aspx                   |
+| 6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0 | https://wordpress.org/luctus/et/ultrices/posuere/cubilia.png |
+| 752119fa-50dc-4011-8f13-23aa8d78eb18 | https://economist.com/nunc/nisl.aspx                         |
++--------------------------------------+--------------------------------------------------------------+
+3 rows in set (0.787 sec)
+```
+
 
 ## Write a digdag workflow
 
