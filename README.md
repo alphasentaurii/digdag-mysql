@@ -215,7 +215,7 @@ out:
   mode: insert
 ```
 
-## Pageviews Embulk Script
+### Pageviews Embulk Script
 
 ```bash
 $ sudo nano seed_pageviews.yml
@@ -252,7 +252,9 @@ out:
 
 ---
 
-### Data Ingestion - SQL Queries
+## SQL Queries
+
+### Customers Table
 
 Creates a new table called `customers` that:
 - Includes all columns from customers_tmp
@@ -261,25 +263,38 @@ Creates a new table called `customers` that:
 `create_customers.sql`
 
 ```sql
+--create_customers.sql
 CREATE TABLE customers 
 SELECT c.user_id, c.first_name, c.last_name, c.job_title, p.user_agent 
 AS operating_system 
 FROM pageviews_tmp p 
 JOIN customers_tmp c 
 ON p.user_id = c.user_id 
-GROUP BY user_id;
+GROUP BY user_id
 ```
 
 `update_customers.sql`
+
 ```sql
-UPDATE customers SET operating_system = 'Macintosh' WHERE operating_system LIKE '%Mac%';
+--update_customers.sql
+UPDATE customers 
+  SET operating_system = 'Macintosh' 
+  WHERE operating_system LIKE '%Mac%'
 
-UPDATE customers SET operating_system = 'Linux' WHERE operating_system LIKE '%X11%';
+UPDATE customers 
+  SET operating_system = 'Linux' 
+  WHERE operating_system LIKE '%X11%';
 
-UPDATE customers SET operating_system = 'Windows' WHERE operating_system LIKE '%Windows%';
+UPDATE customers 
+  SET operating_system = 'Windows' 
+  WHERE operating_system LIKE '%Windows%';
 
-UPDATE customers SET operating_system = 'Other' WHERE operating_system LIKE '%bot%';
+UPDATE customers 
+  SET operating_system = 'Other' 
+  WHERE operating_system LIKE '%bot%';
 ```
+
+### Pageviews Table
 
 Creates a new table called `pageviews` that:
 - Includes all columns from pageviews_tmp
@@ -287,78 +302,87 @@ Creates a new table called `pageviews` that:
 
 `create_pageviews.sql`
 ```sql
+--create_pageviews.sql
 CREATE TABLE pageviews 
 SELECT * 
 FROM pageviews_tmp
-WHERE user_id IN (SELECT user_id
-		  FROM customers_tmp
-		  WHERE job_title NOT LIKE '%Sales%');
+WHERE user_id IN (
+    SELECT user_id
+		FROM customers_tmp
+		WHERE job_title NOT LIKE '%Sales%');
 ```
 
-## Data Analysis - SQL Queries
+### Count Pageviews
 
 Returns the total number of pageviews from users who are browsing with a Windows operating system or have “Engineer” in their job title.
 
+`count_pageviews.sql`
+
 ```sql
-SELECT COUNT(url) 
+--count_pageviews.sql--
+SELECT COUNT(url) AS total_views 
 FROM pageviews 
 WHERE user_id 
-IN (SELECT user_id 
-    FROM customers 
-    WHERE operating_system = 'Windows' 
-    OR job_title LIKE '%Engineer%')
+IN (
+  SELECT user_id 
+  FROM customers 
+  WHERE operating_system = 'Windows' 
+  OR job_title LIKE '%Engineer%'
+  )
 ```
+Returns:
+
 ```bash
-+------------+
-| COUNT(url) |
-+------------+
-|        576 |
-+------------+
++-------------+
+| total_views |
++-------------+
+|        576  |
++-------------+
 1 row in set (0.009 sec)
 ```
 
-Returns top 3 user_id’s (ranked by total pageviews) who have viewed a web page with a
-“.gov” domain extension
+### Top 3 Users and Last Page Viewed
+
+Returns top 3 user_id’s (ranked by total pageviews) who have viewed a web page with a “.gov” domain extension and the url of last page they viewed.
+
+`top_3_users.sql`
 
 ```sql
-SELECT user_id FROM pageviews WHERE user_id IN (SELECT user_id FROM pageviews WHERE url LIKE '%.gov%' ORDER BY timestamp DESC) GROUP BY user_id ORDER BY count(url) DESC LIMIT 3;
-
-SELECT user_id, url AS last_page_viewed FROM pageviews WHERE user_id IN (SELECT user_id FROM pageviews WHERE url LIKE '%.gov%' ORDER BY timestamp DESC) GROUP BY user_id ORDER BY count(url) DESC LIMIT 3;
-
+--top_3_users.sql
+WITH p2 AS(
+	SELECT user_id, max(timestamp) AS last_timestamp 
+	FROM pageviews 
+	WHERE user_id 
+  IN (
+      SELECT user_id 
+      FROM pageviews 
+			WHERE url LIKE '%.gov%'
+      ) 
+	GROUP BY user_id 
+	ORDER BY COUNT(url) DESC 
+	LIMIT 3
+  ) 
+SELECT user_id, url AS last_page_viewed 
+FROM pageviews 
+WHERE user_id 
+IN (
+    SELECT user_id 
+		FROM p2 
+		WHERE timestamp=last_timestamp
+    );
 ```
-```bash
-+--------------------------------------+
-| user_id                              |
-+--------------------------------------+
-| 5d9b8515-823e-49b8-ad44-5c91ef23462f |
-| 6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0 |
-| 752119fa-50dc-4011-8f13-23aa8d78eb18 |
-+--------------------------------------+
-3 rows in set (0.785 sec)
-
-```
-
-Returns the last page viewed by each of these user_id’s in this format:
-user_id last_page_viewed
-1 http://skype.com/urna.png
-2 https://wordpress.org/integer/a/nibh/in/quis.html
-3 http://hhs.gov/quisque/porta/volutpat/erat/quisque/erat.aspx
-
-```sql
-SELECT user_id, url AS last_page_viewed FROM pageviews WHERE user_id IN (SELECT user_id FROM pageviews WHERE url LIKE '%.gov%' ORDER BY timestamp DESC) GROUP BY user_id HAVING max(timestamp) ORDER BY count(url) DESC LIMIT 3;
-```
+Returns:
 
 ```bash
-+--------------------------------------+--------------------------------------------------------------+
-| user_id                              | last_page_viewed                                             |
-+--------------------------------------+--------------------------------------------------------------+
-| 5d9b8515-823e-49b8-ad44-5c91ef23462f | https://microsoft.com/morbi/porttitor.aspx                   |
-| 6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0 | https://wordpress.org/luctus/et/ultrices/posuere/cubilia.png |
-| 752119fa-50dc-4011-8f13-23aa8d78eb18 | https://economist.com/nunc/nisl.aspx                         |
-+--------------------------------------+--------------------------------------------------------------+
-3 rows in set (0.787 sec)
++--------------------------------------+--------------------------------------------+
+| user_id                              | last_page_viewed                           |
++--------------------------------------+--------------------------------------------+
+| 5d9b8515-823e-49b8-ad44-5c91ef23462f | https://microsoft.com/morbi/porttitor.aspx |
+| 6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0 | http://nps.gov/quis/odio/consequat.json    |
+| 752119fa-50dc-4011-8f13-23aa8d78eb18 | http://goo.ne.jp/nunc.html                 |
++--------------------------------------+--------------------------------------------+
+3 rows in set (0.011 sec)
 ```
-
 
 ## Write a digdag workflow
 
@@ -419,13 +443,19 @@ _export:
   +updateCust:
     mysql>: update_customers.sql
   +createPage:
-    mysql> create_pageviews.sql
+    mysql>: create_pageviews.sql
 
 # Data Analysis
++runQueries:
+  _parallel: true
+  
+  +query1:
+    mysql>: count_pageviews.sql
+  
+  +query2:
+    mysql>: top_3_users.sql
 
-
-
-
+# End of Workflow
 +end:
   echo>: ${end_msg}
 
