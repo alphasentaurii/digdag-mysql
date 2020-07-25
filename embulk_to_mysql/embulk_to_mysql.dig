@@ -27,9 +27,10 @@ _export:
   +guess_embulkPage:
     sh>: embulk guess seed_pageviews.yml -o config_pageviews.yml
 
-# Load database
+# Data Ingestion
+# Load database tmp tables
 
-+loadtest:
++loadDB:
   _parallel: true
   
   +csv_to_db_Cust:
@@ -38,6 +39,27 @@ _export:
   +csv_to_db_Page:
     sh>: embulk run config_pageviews.yml
 
+# Create/update new tables
+
++updateDB:
+  +createCust:
+    mysql>: create_customers.sql
+  +updateCust:
+    mysql>: update_customers.sql
+  +createPage:
+    mysql>: create_pageviews.sql
+
+# Data Analysis
++runQueries:
+  _parallel: true
+  
+  +query1:
+    mysql>: count_pageviews.sql
+  
+  +query2:
+    mysql>: top_3_users.sql
+
+# End of Workflow
 +end:
   echo>: ${end_msg}
 

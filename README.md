@@ -265,21 +265,15 @@ Creates a new table called `customers` that:
 ```sql
 --create_customers.sql
 CREATE TABLE customers 
-SELECT c.user_id, c.first_name, c.last_name, c.job_title, p.user_agent 
-AS operating_system 
+SELECT c.user_id, c.first_name, c.last_name, c.job_title, p.user_agent AS operating_system 
 FROM pageviews_tmp p 
 JOIN customers_tmp c 
 ON p.user_id = c.user_id 
-GROUP BY user_id
-```
+GROUP BY user_id;
 
-`update_customers.sql`
-
-```sql
---update_customers.sql
 UPDATE customers 
   SET operating_system = 'Macintosh' 
-  WHERE operating_system LIKE '%Mac%'
+  WHERE operating_system LIKE '%Mac%';
 
 UPDATE customers 
   SET operating_system = 'Linux' 
@@ -290,8 +284,29 @@ UPDATE customers
   WHERE operating_system LIKE '%Windows%';
 
 UPDATE customers 
-  SET operating_system = 'Other' 
-  WHERE operating_system LIKE '%bot%';
+  SET operating_system = 'Other'
+  WHERE operating_system NOT REGEXP 'Macintosh|Linux|Windows';
+```
+
+`update_customers.sql`
+
+```sql
+--update_customers.sql
+UPDATE customers 
+  SET operating_system = 'Macintosh' 
+  WHERE operating_system LIKE '%Mac%';
+
+UPDATE customers 
+  SET operating_system = 'Linux' 
+  WHERE operating_system LIKE '%X11%';
+
+UPDATE customers 
+  SET operating_system = 'Windows' 
+  WHERE operating_system LIKE '%Windows%';
+
+UPDATE customers 
+  SET operating_system = 'Other'
+  WHERE operating_system NOT REGEXP 'Macintosh|Linux|Windows';
 ```
 
 ### Pageviews Table
@@ -304,12 +319,11 @@ Creates a new table called `pageviews` that:
 ```sql
 --create_pageviews.sql
 CREATE TABLE pageviews 
-SELECT * 
-FROM pageviews_tmp
-WHERE user_id IN (
-    SELECT user_id
-		FROM customers_tmp
-		WHERE job_title NOT LIKE '%Sales%');
+SELECT * FROM pageviews_tmp
+WHERE user_id IN 
+(SELECT user_id
+FROM customers
+WHERE job_title NOT LIKE '%Sales%');
 ```
 
 ### Count Pageviews
