@@ -43,21 +43,30 @@ _export:
 
 +updateDB:
   +createCust:
-    mysql>: create_customers.sql
+    sh>: mysql -u ${user} -p${password} ${database} < create_customers.sql
+    preview: true
+
   +updateCust:
-    mysql>: update_customers.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < update_customers.sql
+    preview: true
+
   +createPage:
-    mysql>: create_pageviews.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < create_pageviews.sql
+    preview: true
 
 # Data Analysis
 +runQueries:
   _parallel: true
   
   +query1:
-    mysql>: count_pageviews.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < count_pageviews.sql > query1.txt
+    echo>: query1.txt
+    preview: true
   
   +query2:
-    mysql>: top_3_users.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < top_3_users.sql > query2.txt
+    echo>: query2.txt
+    preview: true
 
 # End of Workflow
 +end:

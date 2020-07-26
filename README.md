@@ -4,9 +4,7 @@ In this project, we'll create a digdag workflow that executes an embulk script f
 
 ## About Embulk and Digdag
 
-Embulk and Digdag are open source libraries for data ingestion and data pipeline orchestration,
-respectively. These libraries were invented at Treasure Data and are foundational to the Treasure Data
-product.
+Embulk and Digdag are open source libraries for data ingestion and data pipeline orchestration, respectively. These libraries were invented at Treasure Data and are foundational to the Treasure Data product.
 
 ## Directory structure
 .
@@ -163,10 +161,12 @@ MariaDB [(none)]> SHOW DATABASES;
 MariaDB [(none)]> exit
 ```
 
-## Install MySQL OutputPlugin
+## Install Plugin(s)
 
 ```bash
 $ embulk gem install embulk-output-mysql
+$ embulk gem install embulk-input-postgresql
+$ embulk gem install embulk-output-postgresql
 ```
 
 # Data Ingestion
@@ -183,7 +183,7 @@ $ embulk gem install embulk-output-mysql
 ### Customers Embulk Script
 
 ```bash
-$ sudo nano seed_customers.yml
+$ nano seed_customers.yml
 ```
 
 ```bash
@@ -218,7 +218,7 @@ out:
 ### Pageviews Embulk Script
 
 ```bash
-$ sudo nano seed_pageviews.yml
+$ nano seed_pageviews.yml
 ```
 
 ```bash
@@ -270,22 +270,6 @@ FROM pageviews_tmp p
 JOIN customers_tmp c 
 ON p.user_id = c.user_id 
 GROUP BY user_id;
-
-UPDATE customers 
-  SET operating_system = 'Macintosh' 
-  WHERE operating_system LIKE '%Mac%';
-
-UPDATE customers 
-  SET operating_system = 'Linux' 
-  WHERE operating_system LIKE '%X11%';
-
-UPDATE customers 
-  SET operating_system = 'Windows' 
-  WHERE operating_system LIKE '%Windows%';
-
-UPDATE customers 
-  SET operating_system = 'Other'
-  WHERE operating_system NOT REGEXP 'Macintosh|Linux|Windows';
 ```
 
 `update_customers.sql`
@@ -293,20 +277,20 @@ UPDATE customers
 ```sql
 --update_customers.sql
 UPDATE customers 
-  SET operating_system = 'Macintosh' 
-  WHERE operating_system LIKE '%Mac%';
+SET operating_system = 'Macintosh' 
+WHERE operating_system LIKE '%Mac%';
 
 UPDATE customers 
-  SET operating_system = 'Linux' 
-  WHERE operating_system LIKE '%X11%';
+SET operating_system = 'Linux' 
+WHERE operating_system LIKE '%X11%';
 
 UPDATE customers 
-  SET operating_system = 'Windows' 
-  WHERE operating_system LIKE '%Windows%';
+SET operating_system = 'Windows' 
+WHERE operating_system LIKE '%Windows%';
 
 UPDATE customers 
-  SET operating_system = 'Other'
-  WHERE operating_system NOT REGEXP 'Macintosh|Linux|Windows';
+SET operating_system = 'Other'
+WHERE operating_system NOT REGEXP 'Macintosh|Linux|Windows';
 ```
 
 ### Pageviews Table
@@ -337,12 +321,11 @@ Returns the total number of pageviews from users who are browsing with a Windows
 SELECT COUNT(url) AS total_views 
 FROM pageviews 
 WHERE user_id 
-IN (
-  SELECT user_id 
-  FROM customers 
-  WHERE operating_system = 'Windows' 
-  OR job_title LIKE '%Engineer%'
-  )
+IN 
+(SELECT user_id 
+FROM customers 
+WHERE operating_system = 'Windows' 
+OR job_title LIKE '%Engineer%');
 ```
 Returns:
 
@@ -403,7 +386,7 @@ Returns:
 ```bash
 $ digdag init embulk_to_mysql.dig
 $ cd embulk_to_mysql.dig
-$ sudo nano embulk_to_mysql.dig
+$ nano embulk_to_mysql.dig
 ```
 
 
@@ -421,7 +404,7 @@ _export:
     port: 3306
     user: digdag
     password: digdag
-    database: td_coding_challenge
+    database: test3
     strict_transaction: false
 
 +start:
@@ -453,28 +436,35 @@ _export:
 
 +updateDB:
   +createCust:
-    mysql>: create_customers.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < create_customers.sql
+    preview: true
+
   +updateCust:
-    mysql>: update_customers.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < update_customers.sql
+    preview: true
+
   +createPage:
-    mysql>: create_pageviews.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < create_pageviews.sql
+    preview: true
 
 # Data Analysis
 +runQueries:
   _parallel: true
   
   +query1:
-    mysql>: count_pageviews.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < count_pageviews.sql
+    preview: true
   
   +query2:
-    mysql>: top_3_users.sql
+    sh>: mysql -u ${user} -p ${password} ${database} < top_3_users.sql
+    preview: true
 
 # End of Workflow
 +end:
   echo>: ${end_msg}
 
 _error:
-  echo>: ${error_msg} 
+  echo>: ${error_msg}
 ```
 
 ## Run Digdag workflow
@@ -483,3 +473,9 @@ _error:
 # If this isn't your first time running the workflow, use the --rerun flag 
 $ digdag run embulk_to_mysql.dig --rerun -O log/task
 ```
+
+#         _ __ _   _
+#  /\_/\ | '__| | | |
+#  [===] | |  | |_| |
+#   \./  |_|   \__,_|
+

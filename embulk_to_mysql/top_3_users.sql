@@ -8,7 +8,7 @@ WITH p2 AS (
         WHERE url LIKE '%.gov%'
         ) 
 	GROUP BY user_id 
-	ORDER BY COUNT(url) DESC, LIMIT 3
+	ORDER BY COUNT(url) DESC LIMIT 3
     )
 
 SELECT user_id, url last_page_viewed 
