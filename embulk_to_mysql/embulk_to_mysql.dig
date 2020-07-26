@@ -9,7 +9,8 @@ _export:
   host: localhost
   port: 3306
   user: digdag
-  password: digdag
+  #password: digdag
+  password_override: password
   database: td_coding_challenge
   strict_transaction: false
   q1: queries/customers.txt
