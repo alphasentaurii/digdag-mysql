@@ -10,20 +10,27 @@ Embulk and Digdag are open source libraries for data ingestion and data pipeline
 .
 ├── README.md
 └── embulk_to_mysql
-  └── embulk_to_mysql.dig
-  └── seed_customers.yml
-  └── seed_pageviews.yml
-  └── config_customers.yml
-  └── config_pageviews.yml
-  └── data
-    └── customers
-        └── customers_1.csv
-        └── customers_2.csv
-    └── pageviews
-        └── pageviews_1.csv
-        └── pageviews_2.csv
+      └── embulk_to_mysql.dig
+      └── tasks
+            └── seed_customers.yml
+            └── seed_pageviews.yml
+            └── config_customers.yml
+            └── config_pageviews.yml
+      └── queries
+            └── create_customers.sql
+            └── update_customers.sql
+            └── create_pageviews.sql
+            └── count_pageviews.sql
+            └── top_3_users.sql
+      └── data
+            └── customers
+                  └── customers_1.csv
+                  └── customers_2.csv
+            └── pageviews
+                  └── pageviews_1.csv
+                  └── pageviews_2.csv
 
-## Pre-requisites
+## Prerequisites
 
 - `sudo` privileges
 - digdag
@@ -165,8 +172,6 @@ MariaDB [(none)]> exit
 
 ```bash
 $ embulk gem install embulk-output-mysql
-$ embulk gem install embulk-input-postgresql
-$ embulk gem install embulk-output-postgresql
 ```
 
 # Data Ingestion
@@ -327,6 +332,7 @@ FROM customers
 WHERE operating_system = 'Windows' 
 OR job_title LIKE '%Engineer%');
 ```
+
 Returns:
 
 ```bash
@@ -364,6 +370,7 @@ FROM p2
 WHERE timestamp=last_timestamp)
 ORDER BY timestamp DESC;
 ```
+
 Returns:
 
 ```bash
@@ -398,7 +405,7 @@ _export:
   port: 3306
   user: digdag
   password: digdag
-  database: test3
+  database: td_coding_challenge
   strict_transaction: false
   q1: customers.txt
   q2: pageviews.txt 
@@ -408,52 +415,50 @@ _export:
 +start:
   echo>: ${start_msg}
 
-+guesstest:
+# Data Preparation
+
++embulk_guess:
   _parallel: true
 
-# create embulk config files
-  +guess_embulkCust:
-    sh>: embulk guess seed_customers.yml -o config_customers.yml
+  +guess_customers:
+    sh>: embulk guess tasks/seed_customers.yml -o tasks/config_customers.yml
 
-  +guess_embulkPage:
-    sh>: embulk guess seed_pageviews.yml -o config_pageviews.yml
+  +guess_pageviews:
+    sh>: embulk guess tasks/seed_pageviews.yml -o tasks/config_pageviews.yml
 
-# Data Ingestion
-# Load database tmp tables
-
-+loadDB:
++embulk_run:
   _parallel: true
   
-  +csv_to_db_Cust:
-    sh>: embulk run config_customers.yml
+  +config_customers:
+    sh>: embulk run tasks/config_customers.yml
 
-  +csv_to_db_Page:
-    sh>: embulk run config_pageviews.yml
+  +config_pageviews:
+    sh>: embulk run tasks/config_pageviews.yml
 
-# Create/update new tables
+# Data Ingestion
 
-+updateDB:
-  +createCust:
-    sh>: mysql -u${user} -p${password} ${database} < create_customers.sql
++create_tables:
+  +create_customers:
+    sh>: mysql -u${user} -p${password} ${database} < queries/create_customers.sql
 
-  +updateCust:
-    sh>: mysql -u${user} -p${password} ${database} < update_customers.sql > ${q1}
+  +update_customers:
+    sh>: mysql -u${user} -p${password} ${database} < queries/update_customers.sql > ${q1}
     echo>: ${q1}
 
-  +createPage:
-    sh>: mysql -u${user} -p${password} ${database} < create_pageviews.sql > ${q2}
+  +create_pageviews:
+    sh>: mysql -u${user} -p${password} ${database} < queries/create_pageviews.sql > ${q2}
     echo>: ${q2}
 
 # Data Analysis
-+runQueries:
++analysis:
   _parallel: true
   
-  +query1:
-    sh>: mysql -u${user} -p${password} ${database} < count_pageviews.sql > ${q3}
+  +count_pageviews:
+    sh>: mysql -u${user} -p${password} ${database} < queries/count_pageviews.sql > ${q3}
     echo>: ${q3}
   
-  +query2:
-    sh>: mysql -u${user} -p${password} ${database} < top_3_users.sql > ${q4}
+  +top_3_users:
+    sh>: mysql -u${user} -p${password} ${database} < queries/top_3_users.sql > ${q4}
     echo>: ${q4}
 
 # End of Workflow

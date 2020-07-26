@@ -1,6 +1,6 @@
 in:
   type: file
-  path_prefix: ./data/pageviews/
+  path_prefix: ../data/pageviews/
   parser:
     charset: UTF-8
     newline: CRLF
@@ -19,5 +19,5 @@ in:
     trim_if_not_quoted: false
     allow_extra_columns: false
     allow_optional_columns: false
-out: {type: mysql, host: localhost, user: digdag, password: digdag, database: test3,
+out: {type: mysql, host: localhost, user: digdag, password: digdag, database: td_coding_challenge,
   table: pageviews_tmp, mode: insert}
