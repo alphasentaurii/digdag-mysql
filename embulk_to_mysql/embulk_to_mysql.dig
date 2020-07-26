@@ -48,11 +48,13 @@ _export:
 
   +update_customers:
     sh>: mysql -u${user} -p${password} ${database} < queries/update_customers.sql > ${q1}
-    echo>: ${q1}
+    +customer_table:
+      echo>: ${q1}
 
   +create_pageviews:
     sh>: mysql -u${user} -p${password} ${database} < queries/create_pageviews.sql > ${q2}
-    echo>: ${q2}
+    +pageviews_table:
+      echo>: ${q2}
 
 # Data Analysis
 +analysis:
@@ -60,11 +62,13 @@ _export:
   
   +count_pageviews:
     sh>: mysql -u${user} -p${password} ${database} < queries/count_pageviews.sql > ${q3}
-    echo>: ${q3}
+    +query_1:
+      echo>: ${q3}
   
   +top_3_users:
     sh>: mysql -u${user} -p${password} ${database} < queries/top_3_users.sql > ${q4}
-    echo>: ${q4}
+    +query2:
+      echo>: ${q4}
 
 # End of Workflow
 +end:
