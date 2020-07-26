@@ -473,6 +473,7 @@ _error:
 
 ```bash
 # If this isn't your first time running the workflow, use the --rerun flag 
+$ digdag secrets --local --set mysql.password=digdag
 $ digdag run embulk_to_mysql.dig --rerun -O log/task
 ```
 
