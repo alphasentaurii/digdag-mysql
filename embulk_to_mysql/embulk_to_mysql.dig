@@ -6,13 +6,12 @@ _export:
   start_msg:     "digdag ${workflow_name} start"
   end_msg:       "digdag ${workflow_name} finish"
   error_msg:     "digdag ${workflow_name} error"
-  mysql:
-    host: localhost
-    port: 3306
-    user: digdag
-    password: digdag
-    database: test3
-    strict_transaction: false
+  host: localhost
+  port: 3306
+  user: digdag
+  password: digdag
+  database: test3
+  strict_transaction: false
 
 +start:
   echo>: ${start_msg}
