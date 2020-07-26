@@ -61,13 +61,23 @@ _export:
     sh>: mysql -u${user} -p${password} ${database} < queries/count_pageviews.sql > ${q3}
   
   +top_3_users:
-    sh>: mysql -u${user} -p${password} ${database} < queries/top_3_users.sql > ${q4}
-  
+    sh>: mysql -u${user} -p${password} ${database} < queries/top_3_users.sql > ${q4}  
+
+# Print Results
 +output:
-  for_each>: 
-    result: [${q1},${q2},${q3},${q4}]
-  _do: 
-    echo>: ${result}
+  _parallel: true
+
+  +customers:
+    echo>: ${q1}
+
+  +pageviews:
+    echo>: ${q2}
+
+  +pv_count:
+    echo>: ${q3}
+
+  +top3:
+    echo>: ${q4}
 
 # End of Workflow
 +end:
