@@ -1,6 +1,6 @@
 in:
   type: file
-  path_prefix: ../data/customers/
+  path_prefix: ./data/customers/
   parser:
     charset: UTF-8
     newline: CRLF
