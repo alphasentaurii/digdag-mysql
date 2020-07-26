@@ -9,14 +9,11 @@ _export:
   host: localhost
   port: 3306
   user: digdag
-  #password: digdag
-  password_override: password
+  password: digdag
   database: td_coding_challenge
   strict_transaction: false
-  q1: queries/customers.txt
-  q2: queries/pageviews.txt
-  q3: queries/count_pageviews.txt
-  q4: queries/top_3_users.txt
+  q1: queries/page_count.txt
+  q2: queries/top_users.txt
 
 +start:
   echo>: ${start_msg}
@@ -48,36 +45,29 @@ _export:
     sh>: mysql -u${user} -p${password} ${database} < queries/create_customers.sql
 
   +update_customers:
-    sh>: mysql -u${user} -p${password} ${database} < queries/update_customers.sql > ${q1}
+    sh>: mysql -u${user} -p${password} ${database} < queries/update_customers.sql
 
   +create_pageviews:
-    sh>: mysql -u${user} -p${password} ${database} < queries/create_pageviews.sql > ${q2}
+    sh>: mysql -u${user} -p${password} ${database} < queries/create_pageviews.sql
 
 # Data Analysis
 +analysis:
   _parallel: true
   
   +count_pageviews:
-    sh>: mysql -u${user} -p${password} ${database} < queries/count_pageviews.sql > ${q3}
+    sh>: mysql -u${user} -p${password} ${database} < queries/count_pageviews.sql > ${q1}
   
   +top_3_users:
-    sh>: mysql -u${user} -p${password} ${database} < queries/top_3_users.sql > ${q4}  
+    sh>: mysql -u${user} -p${password} ${database} < queries/top_3_users.sql > ${q2}
 
 # Print Results
 +output:
   _parallel: true
 
-  +customers:
-    echo>: ${q1}
-
-  +pageviews:
-    echo>: ${q2}
-
-  +pv_count:
-    echo>: ${q3}
-
-  +top3:
-    echo>: ${q4}
+  +q1:
+    sh>: cat ${q1}
+  +q2:
+    sh>: cat ${q2}
 
 # End of Workflow
 +end:

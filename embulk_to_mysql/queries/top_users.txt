@@ -1,0 +1,4 @@
+user_id	last_page_viewed
+5d9b8515-823e-49b8-ad44-5c91ef23462f	https://microsoft.com/morbi/porttitor.aspx
+6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0	http://nps.gov/quis/odio/consequat.json
+752119fa-50dc-4011-8f13-23aa8d78eb18	http://goo.ne.jp/nunc.html
