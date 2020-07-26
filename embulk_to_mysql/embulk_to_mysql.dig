@@ -43,15 +43,15 @@ _export:
 
 +updateDB:
   +createCust:
-    sh>: mysql -u ${user} -p${password} ${database} < create_customers.sql
+    sh>: mysql -u${user} -p${password} ${database} < create_customers.sql
     preview: true
 
   +updateCust:
-    sh>: mysql -u ${user} -p ${password} ${database} < update_customers.sql
+    sh>: mysql -u${user} -p${password} ${database} < update_customers.sql
     preview: true
 
   +createPage:
-    sh>: mysql -u ${user} -p ${password} ${database} < create_pageviews.sql
+    sh>: mysql -u${user} -p${password} ${database} < create_pageviews.sql
     preview: true
 
 # Data Analysis
@@ -59,12 +59,12 @@ _export:
   _parallel: true
   
   +query1:
-    sh>: mysql -u ${user} -p ${password} ${database} < count_pageviews.sql > query1.txt
+    sh>: mysql -u${user} -p${password} ${database} < count_pageviews.sql > query1.txt
     #echo>: query1.txt
     preview: true
   
   +query2:
-    sh>: mysql -u ${user} -p ${password} ${database} < top_3_users.sql > query2.txt
+    sh>: mysql -u${user} -p${password} ${database} < top_3_users.sql > query2.txt
     #echo>: query2.txt
     preview: true
 
