@@ -12,6 +12,10 @@ _export:
   password: digdag
   database: test3
   strict_transaction: false
+  q1: customers.txt
+  q2: pageviews.txt 
+  q3: count_pageviews.txt
+  q4: top_3_users.txt
 
 +start:
   echo>: ${start_msg}
@@ -43,29 +47,26 @@ _export:
 +updateDB:
   +createCust:
     sh>: mysql -u${user} -p${password} ${database} < create_customers.sql
-    preview: true
 
   +updateCust:
-    sh>: mysql -u${user} -p${password} ${database} < update_customers.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < update_customers.sql > ${q1}
+    echo>: ${q1}
 
   +createPage:
-    sh>: mysql -u${user} -p${password} ${database} < create_pageviews.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < create_pageviews.sql > ${q2}
+    echo>: ${q2}
 
 # Data Analysis
 +runQueries:
   _parallel: true
   
   +query1:
-    sh>: mysql -u${user} -p${password} ${database} < count_pageviews.sql > query1.txt
-    #echo>: query1.txt
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < count_pageviews.sql > ${q3}
+    echo>: ${q3}
   
   +query2:
-    sh>: mysql -u${user} -p${password} ${database} < top_3_users.sql > query2.txt
-    #echo>: query2.txt
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < top_3_users.sql > ${q4}
+    echo>: ${q4}
 
 # End of Workflow
 +end:
