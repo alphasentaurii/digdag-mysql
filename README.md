@@ -347,26 +347,22 @@ Returns top 3 user_id’s (ranked by total pageviews) who have viewed a web page
 ```sql
 --top_3_users.sql
 WITH p2 AS(
-	SELECT user_id, max(timestamp) AS last_timestamp 
-	FROM pageviews 
-	WHERE user_id 
-  IN (
-      SELECT user_id 
-      FROM pageviews 
-			WHERE url LIKE '%.gov%'
-      ) 
-	GROUP BY user_id 
-	ORDER BY COUNT(url) DESC 
-	LIMIT 3
-  ) 
-SELECT user_id, url AS last_page_viewed 
+SELECT user_id, max(timestamp) last_timestamp 
 FROM pageviews 
-WHERE user_id 
-IN (
-    SELECT user_id 
-		FROM p2 
-		WHERE timestamp=last_timestamp
-    );
+WHERE user_id IN 
+(SELECT user_id 
+FROM pageviews 
+WHERE url LIKE '%.gov%') 
+GROUP BY user_id 
+ORDER BY COUNT(url) DESC 
+LIMIT 3) 
+SELECT user_id, url last_page_viewed 
+FROM pageviews 
+WHERE user_id IN 
+(SELECT user_id 
+FROM p2 
+WHERE timestamp=last_timestamp)
+ORDER BY timestamp DESC;
 ```
 Returns:
 
@@ -389,7 +385,6 @@ $ cd embulk_to_mysql.dig
 $ nano embulk_to_mysql.dig
 ```
 
-
 ```bash
 # embulk_to_mysql.dig
 timezone: UTC
@@ -399,13 +394,16 @@ _export:
   start_msg:     "digdag ${workflow_name} start"
   end_msg:       "digdag ${workflow_name} finish"
   error_msg:     "digdag ${workflow_name} error"
-  mysql:
-    host: localhost
-    port: 3306
-    user: digdag
-    password: digdag
-    database: test3
-    strict_transaction: false
+  host: localhost
+  port: 3306
+  user: digdag
+  password: digdag
+  database: test3
+  strict_transaction: false
+  q1: customers.txt
+  q2: pageviews.txt 
+  q3: count_pageviews.txt
+  q4: top_3_users.txt
 
 +start:
   echo>: ${start_msg}
@@ -436,28 +434,27 @@ _export:
 
 +updateDB:
   +createCust:
-    sh>: mysql -u ${user} -p ${password} ${database} < create_customers.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < create_customers.sql
 
   +updateCust:
-    sh>: mysql -u ${user} -p ${password} ${database} < update_customers.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < update_customers.sql > ${q1}
+    echo>: ${q1}
 
   +createPage:
-    sh>: mysql -u ${user} -p ${password} ${database} < create_pageviews.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < create_pageviews.sql > ${q2}
+    echo>: ${q2}
 
 # Data Analysis
 +runQueries:
   _parallel: true
   
   +query1:
-    sh>: mysql -u ${user} -p ${password} ${database} < count_pageviews.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < count_pageviews.sql > ${q3}
+    echo>: ${q3}
   
   +query2:
-    sh>: mysql -u ${user} -p ${password} ${database} < top_3_users.sql
-    preview: true
+    sh>: mysql -u${user} -p${password} ${database} < top_3_users.sql > ${q4}
+    echo>: ${q4}
 
 # End of Workflow
 +end:
