@@ -2,8 +2,8 @@
 
 The `Digdag MySQL` project demonstrates how to use `SQL queries` with `digdag` and `embulk` open source libraries for ingesting and analyzing data. We'll load a MySQL database from CSV files and perform data analysis using SQL queries inside an automated digdag workflow.
 
-![GitHub repo size](https://img.shields.io/github/repo-size/hakkeray/digdag)
-![GitHub license](https://img.shields.io/github/license/hakkeray/digdag?color=black)
+![GitHub repo size](https://img.shields.io/github/repo-size/hakkeray/digdag-mysql)
+![GitHub license](https://img.shields.io/github/license/hakkeray/digdag-mysql?color=black)
 
 ## Prerequisites
 
@@ -107,6 +107,11 @@ MariaDB [(none)]> quit
 ```bash
 $ cd embulk_to_mysql
 $ digdag run embulk_to_mysql.dig -O log/task
+
+# NOTE: you can save the output to file instead of in the command line
+# Be patient as nothing will appear to be happening until it completes
+# the entire workflow :)
+$ digdag run embulk_to_mysql.dig -O log/task > log.txt
 ```
 
 *Note: If this isn't your first time running the workflow, use the --rerun flag:*
