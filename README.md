@@ -106,16 +106,15 @@ MariaDB [(none)]> quit
 
 ```bash
 $ cd embulk_to_mysql
+$ digdag secrets --local --set mysql.password=digdag
 $ digdag run embulk_to_mysql.dig -O log/task
 
 # NOTE: you can save the output to file instead of in the command line
 # Be patient as nothing will appear to be happening until it completes
 # the entire workflow :)
 $ digdag run embulk_to_mysql.dig -O log/task > log.txt
-```
 
-*Note: If this isn't your first time running the workflow, use the --rerun flag:*
-```bash
+#If this isn't your first time running the workflow, use the --rerun flag:*
 $ digdag run embulk_to_mysql.dig --rerun -O log/task
 ```
 

@@ -1,0 +1,198 @@
+2020-07-30 00:22:47 +0000 [WARN] (main) io.digdag.cli.Run: Reusing the last session time 2020-07-18T00:00:00+00:00.
+2020-07-30 00:22:47 +0000 [INFO] (main) io.digdag.cli.Run: Using session /root/digdag-mysql/embulk_to_mysql/.digdag/status/20200718T000000+0000.
+2020-07-30 00:22:47 +0000 [INFO] (main) io.digdag.core.workflow.WorkflowExecutor: Starting a new session project id=1 workflow name=embulk_to_mysql session_time=2020-07-18T00:00:00+00:00
+2020-07-30 00:22:50 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+start) io.digdag.core.agent.OperatorManager: echo>: digdag embulk_to_mysql start
+digdag embulk_to_mysql start
+2020-07-30 00:22:51 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+embulk_guess+guess_customers) io.digdag.core.agent.OperatorManager: sh>: embulk guess tasks/seed_customers.yml -o tasks/config_customers.yml
+2020-07-30 00:22:51 +0000 [INFO] (0017@[0:default]+embulk_to_mysql+embulk_guess+guess_pageviews) io.digdag.core.agent.OperatorManager: sh>: embulk guess tasks/seed_pageviews.yml -o tasks/config_pageviews.yml
+2020-07-30 00:22:52.287 +0000: Embulk v0.9.23
+2020-07-30 00:22:52.293 +0000: Embulk v0.9.23
+2020-07-30 00:23:00.591 +0000 [WARN] (main): DEPRECATION: JRuby org.jruby.embed.ScriptingContainer is directly injected.
+2020-07-30 00:23:00.900 +0000 [WARN] (main): DEPRECATION: JRuby org.jruby.embed.ScriptingContainer is directly injected.
+2020-07-30 00:23:38.426 +0000 [INFO] (main): Gem's home and path are set by default: "/root/.embulk/lib/gems"
+2020-07-30 00:23:38.428 +0000 [INFO] (main): Gem's home and path are set by default: "/root/.embulk/lib/gems"
+2020-07-30 00:23:40.770 +0000 [INFO] (main): Started Embulk v0.9.23
+2020-07-30 00:23:40.771 +0000 [INFO] (main): Started Embulk v0.9.23
+2020-07-30 00:23:41.080 +0000 [INFO] (0001:guess): Listing local files at directory './data/pageviews' filtering filename by prefix ''
+2020-07-30 00:23:41.081 +0000 [INFO] (0001:guess): Listing local files at directory './data/customers' filtering filename by prefix ''
+2020-07-30 00:23:41.083 +0000 [INFO] (0001:guess): "follow_symlinks" is set false. Note that symbolic links to directories are skipped.
+2020-07-30 00:23:41.083 +0000 [INFO] (0001:guess): "follow_symlinks" is set false. Note that symbolic links to directories are skipped.
+2020-07-30 00:23:41.086 +0000 [INFO] (0001:guess): Loading files [./data/customers/customers_1.csv, ./data/customers/customers_2.csv]
+2020-07-30 00:23:41.086 +0000 [INFO] (0001:guess): Loading files [./data/pageviews/pageviews_2.csv, ./data/pageviews/pageviews_1.csv]
+2020-07-30 00:23:41.106 +0000 [INFO] (0001:guess): Try to read 32,768 bytes from input source
+2020-07-30 00:23:41.107 +0000 [INFO] (0001:guess): Try to read 32,768 bytes from input source
+2020-07-30 00:23:41.333 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.331 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.391 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.392 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.448 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.449 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.481 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+2020-07-30 00:23:41.481 +0000 [INFO] (0001:guess): Loaded plugin embulk (0.9.23)
+in:
+  type: file
+  path_prefix: ./data/customers/
+  parser:
+    charset: UTF-8
+    newline: CRLF
+    type: csv
+    delimiter: ','
+    'quote:': '"'
+    escape: null
+    null_string: 'NULL'
+    skip_header_lines: 1
+    columns:
+    - {name: user_id, type: string}
+    - {name: first_name, type: string}
+    - {name: last_name, type: string}
+    - {name: job_title, type: string}
+    quote: '"'
+    trim_if_not_quoted: false
+    allow_extra_columns: false
+    allow_optional_columns: false
+out: {type: mysql, host: localhost, user: digdag, password: digdag, database: td_coding_challenge,
+  table: customers_tmp, mode: insert}
+
+Created 'tasks/config_customers.yml' file.
+in:
+  type: file
+  path_prefix: ./data/pageviews/
+  parser:
+    charset: UTF-8
+    newline: CRLF
+    type: csv
+    delimiter: ','
+    'quote:': '"'
+    escape: null
+    null_string: 'NULL'
+    skip_header_lines: 1
+    columns:
+    - {name: user_id, type: string}
+    - {name: url, type: string}
+    - {name: user_agent, type: string}
+    - {name: timestamp, type: long, format: varchar}
+    quote: '"'
+    trim_if_not_quoted: false
+    allow_extra_columns: false
+    allow_optional_columns: false
+out: {type: mysql, host: localhost, user: digdag, password: digdag, database: td_coding_challenge,
+  table: pageviews_tmp, mode: insert}
+
+Created 'tasks/config_pageviews.yml' file.
+2020-07-30 00:23:58 +0000 [INFO] (0017@[0:default]+embulk_to_mysql+embulk_run+config_customers) io.digdag.core.agent.OperatorManager: sh>: embulk run tasks/config_customers.yml
+2020-07-30 00:23:58 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+embulk_run+config_pageviews) io.digdag.core.agent.OperatorManager: sh>: embulk run tasks/config_pageviews.yml
+2020-07-30 00:24:00.069 +0000: Embulk v0.9.23
+2020-07-30 00:24:00.070 +0000: Embulk v0.9.23
+2020-07-30 00:24:08.988 +0000 [WARN] (main): DEPRECATION: JRuby org.jruby.embed.ScriptingContainer is directly injected.
+2020-07-30 00:24:09.832 +0000 [WARN] (main): DEPRECATION: JRuby org.jruby.embed.ScriptingContainer is directly injected.
+2020-07-30 00:24:42.347 +0000 [INFO] (main): Gem's home and path are set by default: "/root/.embulk/lib/gems"
+2020-07-30 00:24:47.024 +0000 [INFO] (main): Gem's home and path are set by default: "/root/.embulk/lib/gems"
+2020-07-30 00:24:52.125 +0000 [INFO] (main): Started Embulk v0.9.23
+2020-07-30 00:24:52.801 +0000 [INFO] (0001:transaction): Loaded plugin embulk-output-mysql (0.8.7)
+2020-07-30 00:24:52.996 +0000 [INFO] (0001:transaction): Listing local files at directory './data/customers' filtering filename by prefix ''
+2020-07-30 00:24:53.003 +0000 [INFO] (0001:transaction): "follow_symlinks" is set false. Note that symbolic links to directories are skipped.
+2020-07-30 00:24:53.014 +0000 [INFO] (0001:transaction): Loading files [./data/customers/customers_1.csv, ./data/customers/customers_2.csv]
+2020-07-30 00:24:53.205 +0000 [INFO] (0001:transaction): Using local thread executor with max_threads=2 / tasks=2
+2020-07-30 00:24:53.314 +0000 [INFO] (0001:transaction): JDBC Driver = /root/.embulk/lib/gems/gems/embulk-output-mysql-0.8.7/default_jdbc_driver/mysql-connector-java-5.1.44.jar
+2020-07-30 00:24:53.349 +0000 [INFO] (0001:transaction): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:53.680 +0000 [INFO] (main): Started Embulk v0.9.23
+2020-07-30 00:24:54.255 +0000 [INFO] (0001:transaction): Loaded plugin embulk-output-mysql (0.8.7)
+2020-07-30 00:24:54.414 +0000 [INFO] (0001:transaction): Listing local files at directory './data/pageviews' filtering filename by prefix ''
+2020-07-30 00:24:54.418 +0000 [INFO] (0001:transaction): "follow_symlinks" is set false. Note that symbolic links to directories are skipped.
+2020-07-30 00:24:54.421 +0000 [INFO] (0001:transaction): Loading files [./data/pageviews/pageviews_2.csv, ./data/pageviews/pageviews_1.csv]
+2020-07-30 00:24:54.576 +0000 [INFO] (0001:transaction): Using local thread executor with max_threads=2 / tasks=2
+2020-07-30 00:24:54.669 +0000 [INFO] (0001:transaction): TransactionIsolation=repeatable_read
+2020-07-30 00:24:54.670 +0000 [INFO] (0001:transaction): Using JDBC Driver mysql-connector-java-5.1.44 ( Revision: b3cda4f864902ffdde495b9df93937c3e20009be )
+2020-07-30 00:24:54.670 +0000 [WARN] (0001:transaction): This plugin will update MySQL Connector/J version in the near future release.
+2020-07-30 00:24:54.674 +0000 [WARN] (0001:transaction): It has some incompatibility changes.
+2020-07-30 00:24:54.675 +0000 [WARN] (0001:transaction): For example, the 5.1.35 introduced `noTimezoneConversionForDateType` and `cacheDefaultTimezone` options.
+2020-07-30 00:24:54.675 +0000 [WARN] (0001:transaction): Please read a document and make sure configuration carefully before updating the plugin.
+2020-07-30 00:24:54.680 +0000 [INFO] (0001:transaction): JDBC Driver = /root/.embulk/lib/gems/gems/embulk-output-mysql-0.8.7/default_jdbc_driver/mysql-connector-java-5.1.44.jar
+2020-07-30 00:24:54.689 +0000 [WARN] (0001:transaction): The plugin will set `useLegacyDatetimeCode=false` by default in future.
+2020-07-30 00:24:54.689 +0000 [INFO] (0001:transaction): Using insert mode
+2020-07-30 00:24:54.714 +0000 [INFO] (0001:transaction): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:54.749 +0000 [INFO] (0001:transaction): SQL: CREATE TABLE `customers_tmp_000001739d1b8abe_embulk000` (`user_id` TEXT, `first_name` TEXT, `last_name` TEXT, `job_title` TEXT)
+2020-07-30 00:24:54.947 +0000 [INFO] (0001:transaction): > 0.19 seconds
+2020-07-30 00:24:54.970 +0000 [INFO] (0001:transaction): SQL: CREATE TABLE `customers_tmp_000001739d1b8abe_embulk001` (`user_id` TEXT, `first_name` TEXT, `last_name` TEXT, `job_title` TEXT)
+2020-07-30 00:24:54.991 +0000 [INFO] (0001:transaction): > 0.02 seconds
+2020-07-30 00:24:55.353 +0000 [INFO] (0001:transaction): {done:  0 / 2, running: 0}
+2020-07-30 00:24:55.597 +0000 [INFO] (0014:task-0000): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:55.597 +0000 [INFO] (0015:task-0001): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:55.654 +0000 [INFO] (0015:task-0001): TransactionIsolation=repeatable_read
+2020-07-30 00:24:55.655 +0000 [INFO] (0015:task-0001): Prepared SQL: INSERT INTO `customers_tmp_000001739d1b8abe_embulk001` (`user_id`, `first_name`, `last_name`, `job_title`) VALUES (?, ?, ?, ?)
+2020-07-30 00:24:55.766 +0000 [INFO] (0014:task-0000): TransactionIsolation=repeatable_read
+2020-07-30 00:24:55.767 +0000 [INFO] (0014:task-0000): Prepared SQL: INSERT INTO `customers_tmp_000001739d1b8abe_embulk000` (`user_id`, `first_name`, `last_name`, `job_title`) VALUES (?, ?, ?, ?)
+2020-07-30 00:24:56.090 +0000 [INFO] (0001:transaction): TransactionIsolation=repeatable_read
+2020-07-30 00:24:56.091 +0000 [INFO] (0001:transaction): Using JDBC Driver mysql-connector-java-5.1.44 ( Revision: b3cda4f864902ffdde495b9df93937c3e20009be )
+2020-07-30 00:24:56.091 +0000 [WARN] (0001:transaction): This plugin will update MySQL Connector/J version in the near future release.
+2020-07-30 00:24:56.091 +0000 [WARN] (0001:transaction): It has some incompatibility changes.
+2020-07-30 00:24:56.091 +0000 [WARN] (0001:transaction): For example, the 5.1.35 introduced `noTimezoneConversionForDateType` and `cacheDefaultTimezone` options.
+2020-07-30 00:24:56.091 +0000 [WARN] (0001:transaction): Please read a document and make sure configuration carefully before updating the plugin.
+2020-07-30 00:24:56.261 +0000 [WARN] (0001:transaction): The plugin will set `useLegacyDatetimeCode=false` by default in future.
+2020-07-30 00:24:56.261 +0000 [INFO] (0001:transaction): Using insert mode
+2020-07-30 00:24:56.301 +0000 [INFO] (0001:transaction): SQL: CREATE TABLE `pageviews_tmp_000001739d1b90dc_embulk000` (`user_id` TEXT, `url` TEXT, `user_agent` TEXT, `timestamp` BIGINT)
+2020-07-30 00:24:56.438 +0000 [INFO] (0001:transaction): > 0.11 seconds
+2020-07-30 00:24:56.471 +0000 [INFO] (0001:transaction): SQL: CREATE TABLE `pageviews_tmp_000001739d1b90dc_embulk001` (`user_id` TEXT, `url` TEXT, `user_agent` TEXT, `timestamp` BIGINT)
+2020-07-30 00:24:56.526 +0000 [INFO] (0001:transaction): > 0.06 seconds
+2020-07-30 00:24:56.905 +0000 [INFO] (0001:transaction): {done:  0 / 2, running: 0}
+2020-07-30 00:24:57.082 +0000 [INFO] (0015:task-0001): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:57.083 +0000 [INFO] (0014:task-0000): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:57.132 +0000 [INFO] (0015:task-0001): TransactionIsolation=repeatable_read
+2020-07-30 00:24:57.134 +0000 [INFO] (0015:task-0001): Prepared SQL: INSERT INTO `pageviews_tmp_000001739d1b90dc_embulk001` (`user_id`, `url`, `user_agent`, `timestamp`) VALUES (?, ?, ?, ?)
+2020-07-30 00:24:57.197 +0000 [INFO] (0015:task-0001): Loading 50 rows
+2020-07-30 00:24:57.198 +0000 [INFO] (0014:task-0000): Loading 49 rows
+2020-07-30 00:24:57.458 +0000 [INFO] (0014:task-0000): TransactionIsolation=repeatable_read
+2020-07-30 00:24:57.458 +0000 [INFO] (0014:task-0000): Prepared SQL: INSERT INTO `pageviews_tmp_000001739d1b90dc_embulk000` (`user_id`, `url`, `user_agent`, `timestamp`) VALUES (?, ?, ?, ?)
+2020-07-30 00:24:57.502 +0000 [INFO] (0015:task-0001): > 0.31 seconds (loaded 50 rows in total)
+2020-07-30 00:24:57.519 +0000 [INFO] (0014:task-0000): > 0.32 seconds (loaded 49 rows in total)
+2020-07-30 00:24:57.520 +0000 [INFO] (0001:transaction): {done:  2 / 2, running: 0}
+2020-07-30 00:24:57.520 +0000 [INFO] (0001:transaction): {done:  2 / 2, running: 0}
+2020-07-30 00:24:57.520 +0000 [INFO] (0001:transaction): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=2700000}
+2020-07-30 00:24:57.536 +0000 [INFO] (0001:transaction): TransactionIsolation=repeatable_read
+2020-07-30 00:24:57.540 +0000 [INFO] (0001:transaction): SQL: CREATE TABLE IF NOT EXISTS `customers_tmp` (`user_id` TEXT, `first_name` TEXT, `last_name` TEXT, `job_title` TEXT)
+2020-07-30 00:24:57.565 +0000 [INFO] (0001:transaction): > 0.02 seconds
+2020-07-30 00:24:57.565 +0000 [INFO] (0001:transaction): SQL: INSERT INTO `customers_tmp` (`user_id`, `first_name`, `last_name`, `job_title`) SELECT `user_id`, `first_name`, `last_name`, `job_title` FROM `customers_tmp_000001739d1b8abe_embulk000` UNION ALL SELECT `user_id`, `first_name`, `last_name`, `job_title` FROM `customers_tmp_000001739d1b8abe_embulk001`
+2020-07-30 00:24:57.623 +0000 [INFO] (0001:transaction): > 0.06 seconds (99 rows)
+2020-07-30 00:24:57.831 +0000 [INFO] (0001:transaction): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:24:57.839 +0000 [INFO] (0001:transaction): TransactionIsolation=repeatable_read
+2020-07-30 00:24:57.840 +0000 [INFO] (0001:transaction): SQL: DROP TABLE IF EXISTS `customers_tmp_000001739d1b8abe_embulk000`
+2020-07-30 00:24:57.953 +0000 [INFO] (0001:transaction): > 0.11 seconds
+2020-07-30 00:24:57.953 +0000 [INFO] (0001:transaction): SQL: DROP TABLE IF EXISTS `customers_tmp_000001739d1b8abe_embulk001`
+2020-07-30 00:24:57.978 +0000 [INFO] (0001:transaction): > 0.03 seconds
+2020-07-30 00:24:57.979 +0000 [INFO] (main): Committed.
+2020-07-30 00:24:57.979 +0000 [INFO] (main): Next config diff: {"in":{"last_path":"./data/customers/customers_2.csv"},"out":{}}
+2020-07-30 00:24:58.580 +0000 [INFO] (0015:task-0001): Loading 499 rows
+2020-07-30 00:24:58.581 +0000 [INFO] (0014:task-0000): Loading 501 rows
+2020-07-30 00:25:01.083 +0000 [INFO] (0014:task-0000): > 2.50 seconds (loaded 501 rows in total)
+2020-07-30 00:25:01.084 +0000 [INFO] (0001:transaction): {done:  1 / 2, running: 1}
+2020-07-30 00:25:01.155 +0000 [INFO] (0015:task-0001): > 2.58 seconds (loaded 499 rows in total)
+2020-07-30 00:25:01.156 +0000 [INFO] (0001:transaction): {done:  2 / 2, running: 0}
+2020-07-30 00:25:01.156 +0000 [INFO] (0001:transaction): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=2700000}
+2020-07-30 00:25:01.166 +0000 [INFO] (0001:transaction): TransactionIsolation=repeatable_read
+2020-07-30 00:25:01.168 +0000 [INFO] (0001:transaction): SQL: CREATE TABLE IF NOT EXISTS `pageviews_tmp` (`user_id` TEXT, `url` TEXT, `user_agent` TEXT, `timestamp` BIGINT)
+2020-07-30 00:25:01.253 +0000 [INFO] (0001:transaction): > 0.09 seconds
+2020-07-30 00:25:01.254 +0000 [INFO] (0001:transaction): SQL: INSERT INTO `pageviews_tmp` (`user_id`, `url`, `user_agent`, `timestamp`) SELECT `user_id`, `url`, `user_agent`, `timestamp` FROM `pageviews_tmp_000001739d1b90dc_embulk000` UNION ALL SELECT `user_id`, `url`, `user_agent`, `timestamp` FROM `pageviews_tmp_000001739d1b90dc_embulk001`
+2020-07-30 00:25:01.486 +0000 [INFO] (0001:transaction): > 0.23 seconds (1,000 rows)
+2020-07-30 00:25:01.532 +0000 [INFO] (0001:transaction): Connecting to jdbc:mysql://localhost:3306/td_coding_challenge options {user=digdag, password=***, tcpKeepAlive=true, useSSL=false, useCompression=true, rewriteBatchedStatements=true, connectTimeout=300000, socketTimeout=1800000}
+2020-07-30 00:25:01.542 +0000 [INFO] (0001:transaction): TransactionIsolation=repeatable_read
+2020-07-30 00:25:01.543 +0000 [INFO] (0001:transaction): SQL: DROP TABLE IF EXISTS `pageviews_tmp_000001739d1b90dc_embulk000`
+2020-07-30 00:25:01.640 +0000 [INFO] (0001:transaction): > 0.10 seconds
+2020-07-30 00:25:01.640 +0000 [INFO] (0001:transaction): SQL: DROP TABLE IF EXISTS `pageviews_tmp_000001739d1b90dc_embulk001`
+2020-07-30 00:25:01.676 +0000 [INFO] (0001:transaction): > 0.04 seconds
+2020-07-30 00:25:01.677 +0000 [INFO] (main): Committed.
+2020-07-30 00:25:01.677 +0000 [INFO] (main): Next config diff: {"in":{"last_path":"./data/pageviews/pageviews_2.csv"},"out":{}}
+2020-07-30 00:25:04 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+create_tables+create_customers) io.digdag.core.agent.OperatorManager: sh>: mysql -udigdag -pdigdag td_coding_challenge < queries/create_customers.sql
+2020-07-30 00:25:07 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+create_tables+update_customers) io.digdag.core.agent.OperatorManager: sh>: mysql -udigdag -pdigdag td_coding_challenge < queries/update_customers.sql
+2020-07-30 00:25:09 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+create_tables+create_pageviews) io.digdag.core.agent.OperatorManager: sh>: mysql -udigdag -pdigdag td_coding_challenge < queries/create_pageviews.sql
+2020-07-30 00:25:10 +0000 [INFO] (0017@[0:default]+embulk_to_mysql+analysis+top_3_users) io.digdag.core.agent.OperatorManager: sh>: mysql -udigdag -pdigdag td_coding_challenge < queries/top_3_users.sql > queries/top_users.txt
+2020-07-30 00:25:10 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+analysis+count_pageviews) io.digdag.core.agent.OperatorManager: sh>: mysql -udigdag -pdigdag td_coding_challenge < queries/count_pageviews.sql > queries/page_count.txt
+2020-07-30 00:25:10 +0000 [INFO] (0017@[0:default]+embulk_to_mysql+output+q1) io.digdag.core.agent.OperatorManager: sh>: cat queries/page_count.txt
+2020-07-30 00:25:10 +0000 [INFO] (0016@[0:default]+embulk_to_mysql+output+q2) io.digdag.core.agent.OperatorManager: sh>: cat queries/top_users.txt
+user_id	last_page_viewed
+5d9b8515-823e-49b8-ad44-5c91ef23462f	https://microsoft.com/morbi/porttitor.aspx
+6cf36c9e-1fa7-491d-a6e1-9c785d68a3d0	http://nps.gov/quis/odio/consequat.json
+752119fa-50dc-4011-8f13-23aa8d78eb18	http://goo.ne.jp/nunc.html
+total_views
+456
+2020-07-30 00:25:12 +0000 [INFO] (0017@[0:default]+embulk_to_mysql+end) io.digdag.core.agent.OperatorManager: echo>: digdag embulk_to_mysql finish
+digdag embulk_to_mysql finish
