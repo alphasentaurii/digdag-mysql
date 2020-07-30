@@ -12,6 +12,7 @@ Before you begin, ensure you have met the following requirements:
 * You have a `<Windows/Linux/Mac>` machine.
 * You have access to `sudo` privileges
 * You have installed `Java` version 8
+* You have mysql/mariadb installed and configured
 
 For help installing and configuring Java and MySQL, check out my blog post ![Digdag MySQL Tutorial](https://www.hakkeray.com/datascience/2020/07/21/digdag-mysql-tutorial.html).
 
@@ -105,7 +106,10 @@ MariaDB [(none)]> quit
 ### Run the Digdag MySQL workflow
 
 ```bash
-$ cd embulk_to_mysql
+$ sudo -s # root privileges
+$ cd ~/ # change to root directory home folder
+$ git clone https://github.com/hakkeray/digdag-postgres.git
+$ cd digdag-postgres/embulk_to_mysql
 $ digdag secrets --local --set mysql.password=digdag
 $ digdag run embulk_to_mysql.dig -O log/task
 
